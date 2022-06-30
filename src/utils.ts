@@ -24,9 +24,9 @@ export function checkInputs(inputs: context.Inputs): boolean {
  * @param sk
  * @returns
  */
+const akReg = /^[a-zA-Z0-9]{10,30}$/;
+const skReg = /^[a-zA-Z0-9]{30,50}$/;
 export function checkAkSk(ak: string, sk: string): boolean {
-    const akReg = /^[a-zA-Z0-9]{10,30}$/;
-    const skReg = /^[a-zA-Z0-9]{30,50}$/;
     return akReg.test(ak) && skReg.test(sk);
 }
 

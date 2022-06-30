@@ -88,25 +88,20 @@ const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
 function execCommand(commandLine, args) {
     return __awaiter(this, void 0, void 0, function* () {
-        let execSucceed = false;
         try {
-            yield exec
-                .getExecOutput(commandLine, args, {
+            const execResult = yield exec.getExecOutput(commandLine, args, {
                 ignoreReturnCode: false,
-            })
-                .then((result) => {
-                if (result.exitCode === 0) {
-                    execSucceed = true;
-                }
-                else if (result.stderr.length > 0) {
-                    core.info(result.stderr);
-                }
             });
+            if (execResult.exitCode !== 0 && execResult.stderr.length > 0) {
+                core.info(execResult.stderr);
+                return false;
+            }
+            return execResult.exitCode === 0;
         }
         catch (error) {
             core.info(`Exec command failed because: ${error}`);
+            return false;
         }
-        return execSucceed;
     });
 }
 exports.execCommand = execCommand;
@@ -397,9 +392,9 @@ exports.checkInputs = checkInputs;
  * @param sk
  * @returns
  */
+const akReg = /^[a-zA-Z0-9]{10,30}$/;
+const skReg = /^[a-zA-Z0-9]{30,50}$/;
 function checkAkSk(ak, sk) {
-    const akReg = /^[a-zA-Z0-9]{10,30}$/;
-    const skReg = /^[a-zA-Z0-9]{30,50}$/;
     return akReg.test(ak) && skReg.test(sk);
 }
 exports.checkAkSk = checkAkSk;
