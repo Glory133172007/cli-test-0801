@@ -1,4 +1,4 @@
-# KooCLI-action
+# huaweicloud-cli-action
 [华为云命令行工具服务（Koo Command Line Interface，KooCLI，原名HCloud CLI）](https://support.huaweicloud.com/productdesc-hcli/hcli_01.html)，是为发布在API Explorer上的华为云服务API提供的命令行管理工具。您可以通过此工具调用API Explorer中各云服务开放的API，管理和使用您的各类云服务资源。
 您可以通过配置KooCLI-action参数，快捷使用KooCLI。  
 
