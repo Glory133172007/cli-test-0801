@@ -88,7 +88,7 @@ export async function configureKooCLI(ak: string, sk: string, region?: string): 
 
 /**
  * 更新KooCLI
- * 版本3.2.8之后有关于统计访问量的交互，通过配置环境变量跳过
+ * 版本3.2.8之后，更新版本时有关于统计访问量的交互，通过配置环境变量跳过
  * @returns
  */
 export async function updateKooCLI(): Promise<void> {

@@ -36,7 +36,7 @@ export function checkAkSk(ak: string, sk: string): boolean {
  * @returns
  */
 export function checkParameterIsNull(parameter: string): boolean {
-    return parameter === '' || parameter.trim().length == 0;
+    return parameter === '' || parameter.trim().length === 0;
 }
 
 /**

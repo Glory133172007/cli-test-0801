@@ -88,24 +88,25 @@ const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
 function execCommand(commandLine, args) {
     return __awaiter(this, void 0, void 0, function* () {
+        let execSucceed = false;
         try {
             yield exec
                 .getExecOutput(commandLine, args, {
                 ignoreReturnCode: false,
             })
                 .then((result) => {
-                if (result.exitCode !== 0 && result.stderr.length > 0) {
-                    core.info(result.stderr);
-                    return false;
+                if (result.exitCode === 0) {
+                    execSucceed = true;
                 }
-                return result.exitCode === 0;
+                else if (result.stderr.length > 0) {
+                    core.info(result.stderr);
+                }
             });
         }
         catch (error) {
             core.info(`Exec command failed because: ${error}`);
-            return false;
         }
-        return true;
+        return execSucceed;
     });
 }
 exports.execCommand = execCommand;
@@ -248,7 +249,7 @@ function configureKooCLI(ak, sk, region) {
 exports.configureKooCLI = configureKooCLI;
 /**
  * 更新KooCLI
- * 版本3.2.8之后有关于统计访问量的交互，通过配置环境变量跳过
+ * 版本3.2.8之后，更新版本时有关于统计访问量的交互，通过配置环境变量跳过
  * @returns
  */
 function updateKooCLI() {
@@ -408,7 +409,7 @@ exports.checkAkSk = checkAkSk;
  * @returns
  */
 function checkParameterIsNull(parameter) {
-    return parameter === '' || parameter.trim().length == 0;
+    return parameter === '' || parameter.trim().length === 0;
 }
 exports.checkParameterIsNull = checkParameterIsNull;
 /**
