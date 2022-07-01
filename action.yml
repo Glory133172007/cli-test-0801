@@ -5,7 +5,7 @@ branding:
   color: 'red'
 author: 'lixinyu39'
 inputs:
- access_key:
+  access_key:
     description: "Access key id"
     required: true
   secret_key:
