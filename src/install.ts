@@ -1,13 +1,20 @@
 import * as core from '@actions/core';
 import * as io from '@actions/io';
+import * as fs from 'fs';
 import * as os from 'os';
 import * as tools from './execTools';
+import { LINUX_KOOCLI_MOD } from './context';
 
 /**
- * 检查系统上是否安装了KooCLI,如果没有，会尝试进行安装，如果安装不成功，则提示安装失败，结束操作
+ * 检查系统上是否安装了KooCLI，如果没有，会尝试进行安装，如果安装不成功，则提示安装失败，结束操作
  * @returns
  */
 export async function installCLIOnSystem(): Promise<boolean> {
+    tools.execCommand('export STACK=hcloud-toolkit');
+
+    // 设置环境变量STACK，跳过使用hcloud的用户隐私交互
+    core.exportVariable('STACK', 'hcloud-toolkit');
+
     const isInstalld = await checkKooCLIInstall();
     if (isInstalld) {
         await updateKooCLI();
@@ -16,7 +23,7 @@ export async function installCLIOnSystem(): Promise<boolean> {
 
     core.info('start install KooCLI');
     const platform = os.platform();
-    installKooCLIByPlatform(platform);
+    await installKooCLIByPlatform(platform);
     return checkKooCLIInstall();
 }
 
@@ -38,7 +45,6 @@ export async function checkKooCLIInstall(): Promise<boolean> {
 /**
  * 针对不同操作系统完成KooCLI安装
  * @param platform
- * @returns
  */
 export async function installKooCLIByPlatform(platform: string): Promise<void> {
     if (platform === 'darwin') {
@@ -51,7 +57,6 @@ export async function installKooCLIByPlatform(platform: string): Promise<void> {
 
 /**
  * mac系统安装KooCLI
- * @returns
  */
 export async function installKooCLIOnMacos(): Promise<void> {
     core.info('current system is MacOS.');
@@ -63,13 +68,16 @@ export async function installKooCLIOnMacos(): Promise<void> {
 /**
  * 在当前的linux系统上安装KooCLI
  * KooCLI支持Linux AMD 64位 和 ARM 64位操作系统
- * @returns
  */
 export async function installKooCLIOnLinux(): Promise<void> {
     core.info('current system is Linux.');
-    await tools.execCommand(
-        'curl -sSL https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/hcloud_install.sh -o ./hcloud_install.sh && bash ./hcloud_install.sh -y'
-    );
+    const kooCLIPath = './tmp/hcloud';
+    await tools.execCommand(`mkdir -p ${kooCLIPath}`);
+    fs.chmodSync(kooCLIPath, LINUX_KOOCLI_MOD);
+    await tools.execCommand(`curl -LO "https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"`);
+    core.info(`extract KooCLI to ${kooCLIPath}`);
+    await tools.execCommand(`tar -zxvf huaweicloud-cli-linux-amd64.tar.gz -C ${kooCLIPath}`);
+    core.addPath(kooCLIPath);
 }
 
 /**
@@ -88,11 +96,8 @@ export async function configureKooCLI(ak: string, sk: string, region?: string): 
 
 /**
  * 更新KooCLI
- * 版本3.2.8之后，更新版本时有关于统计访问量的交互，通过配置环境变量跳过
- * @returns
  */
 export async function updateKooCLI(): Promise<void> {
-    core.info('try update KooCLI.');
-    await tools.execCommand('export STACK=hcloud-toolkit');
+    core.info('trying update KooCLI.');
     await tools.execCommand('hcloud update -y');
 }
