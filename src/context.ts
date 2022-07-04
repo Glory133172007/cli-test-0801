@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 
-export const LINUX_KOOCLI_MOD = '755'
+export const LINUX_KOOCLI_MOD = '755';
 export interface Inputs {
     accessKey: string;
     secretKey: string;

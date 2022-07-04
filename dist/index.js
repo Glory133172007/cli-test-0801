@@ -30,8 +30,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getInputs = void 0;
+exports.getInputs = exports.LINUX_KOOCLI_MOD = void 0;
 const core = __importStar(__nccwpck_require__(186));
+exports.LINUX_KOOCLI_MOD = '755';
 function getInputs() {
     return {
         accessKey: core.getInput('access_key'),
@@ -150,14 +151,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.updateKooCLI = exports.configureKooCLI = exports.installKooCLIOnLinux = exports.installKooCLIOnMacos = exports.installKooCLIByPlatform = exports.checkKooCLIInstall = exports.installCLIOnSystem = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const io = __importStar(__nccwpck_require__(436));
+const fs = __importStar(__nccwpck_require__(147));
 const os = __importStar(__nccwpck_require__(37));
 const tools = __importStar(__nccwpck_require__(778));
+const context_1 = __nccwpck_require__(842);
 /**
- * 检查系统上是否安装了KooCLI,如果没有，会尝试进行安装，如果安装不成功，则提示安装失败，结束操作
+ * 检查系统上是否安装了KooCLI，如果没有，会尝试进行安装，如果安装不成功，则提示安装失败，结束操作
  * @returns
  */
 function installCLIOnSystem() {
     return __awaiter(this, void 0, void 0, function* () {
+        tools.execCommand('export STACK=hcloud-toolkit');
+        // 设置环境变量STACK，跳过使用hcloud的用户隐私交互
+        core.exportVariable('STACK', 'hcloud-toolkit');
         const isInstalld = yield checkKooCLIInstall();
         if (isInstalld) {
             yield updateKooCLI();
@@ -165,7 +171,7 @@ function installCLIOnSystem() {
         }
         core.info('start install KooCLI');
         const platform = os.platform();
-        installKooCLIByPlatform(platform);
+        yield installKooCLIByPlatform(platform);
         return checkKooCLIInstall();
     });
 }
@@ -190,7 +196,6 @@ exports.checkKooCLIInstall = checkKooCLIInstall;
 /**
  * 针对不同操作系统完成KooCLI安装
  * @param platform
- * @returns
  */
 function installKooCLIByPlatform(platform) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -205,7 +210,6 @@ function installKooCLIByPlatform(platform) {
 exports.installKooCLIByPlatform = installKooCLIByPlatform;
 /**
  * mac系统安装KooCLI
- * @returns
  */
 function installKooCLIOnMacos() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -217,12 +221,17 @@ exports.installKooCLIOnMacos = installKooCLIOnMacos;
 /**
  * 在当前的linux系统上安装KooCLI
  * KooCLI支持Linux AMD 64位 和 ARM 64位操作系统
- * @returns
  */
 function installKooCLIOnLinux() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is Linux.');
-        yield tools.execCommand('curl -sSL https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/hcloud_install.sh -o ./hcloud_install.sh && bash ./hcloud_install.sh -y');
+        const kooCLIPath = './tmp/hcloud';
+        yield tools.execCommand(`mkdir -p ${kooCLIPath}`);
+        fs.chmodSync(kooCLIPath, context_1.LINUX_KOOCLI_MOD);
+        yield tools.execCommand(`curl -LO "https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"`);
+        core.info(`extract KooCLI to ${kooCLIPath}`);
+        yield tools.execCommand(`tar -zxvf huaweicloud-cli-linux-amd64.tar.gz -C ${kooCLIPath}`);
+        core.addPath(kooCLIPath);
     });
 }
 exports.installKooCLIOnLinux = installKooCLIOnLinux;
@@ -244,13 +253,10 @@ function configureKooCLI(ak, sk, region) {
 exports.configureKooCLI = configureKooCLI;
 /**
  * 更新KooCLI
- * 版本3.2.8之后，更新版本时有关于统计访问量的交互，通过配置环境变量跳过
- * @returns
  */
 function updateKooCLI() {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('try update KooCLI.');
-        yield tools.execCommand('export STACK=hcloud-toolkit');
+        core.info('trying update KooCLI.');
         yield tools.execCommand('hcloud update -y');
     });
 }

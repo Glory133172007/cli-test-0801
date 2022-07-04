@@ -74,7 +74,9 @@ export async function installKooCLIOnLinux(): Promise<void> {
     const kooCLIPath = './tmp/hcloud';
     await tools.execCommand(`mkdir -p ${kooCLIPath}`);
     fs.chmodSync(kooCLIPath, LINUX_KOOCLI_MOD);
-    await tools.execCommand(`curl -LO "https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"`);
+    await tools.execCommand(
+        `curl -LO "https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"`
+    );
     core.info(`extract KooCLI to ${kooCLIPath}`);
     await tools.execCommand(`tar -zxvf huaweicloud-cli-linux-amd64.tar.gz -C ${kooCLIPath}`);
     core.addPath(kooCLIPath);
