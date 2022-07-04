@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 
 export const LINUX_KOOCLI_MOD = '755';
+
 export interface Inputs {
     accessKey: string;
     secretKey: string;
@@ -10,9 +11,9 @@ export interface Inputs {
 
 export function getInputs(): Inputs {
     return {
-        accessKey: core.getInput('access_key'),
-        secretKey: core.getInput('secret_key'),
-        region: core.getInput('region'),
-        commandList: core.getMultilineInput('command_list'),
+        accessKey: core.getInput('access_key', { required: true }),
+        secretKey: core.getInput('secret_key', { required: true }),
+        region: core.getInput('region', { required: true }),
+        commandList: core.getMultilineInput('command_list', { required: false }),
     };
 }

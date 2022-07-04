@@ -35,10 +35,10 @@ const core = __importStar(__nccwpck_require__(186));
 exports.LINUX_KOOCLI_MOD = '755';
 function getInputs() {
     return {
-        accessKey: core.getInput('access_key'),
-        secretKey: core.getInput('secret_key'),
-        region: core.getInput('region'),
-        commandList: core.getMultilineInput('command_list'),
+        accessKey: core.getInput('access_key', { required: true }),
+        secretKey: core.getInput('secret_key', { required: true }),
+        region: core.getInput('region', { required: true }),
+        commandList: core.getMultilineInput('command_list', { required: false }),
     };
 }
 exports.getInputs = getInputs;
@@ -154,6 +154,7 @@ const io = __importStar(__nccwpck_require__(436));
 const fs = __importStar(__nccwpck_require__(147));
 const os = __importStar(__nccwpck_require__(37));
 const tools = __importStar(__nccwpck_require__(778));
+const utils = __importStar(__nccwpck_require__(918));
 const context_1 = __nccwpck_require__(842);
 /**
  * 检查系统上是否安装了KooCLI，如果没有，会尝试进行安装，如果安装不成功，则提示安装失败，结束操作
@@ -161,7 +162,6 @@ const context_1 = __nccwpck_require__(842);
  */
 function installCLIOnSystem() {
     return __awaiter(this, void 0, void 0, function* () {
-        tools.execCommand('export STACK=hcloud-toolkit');
         // 设置环境变量STACK，跳过使用hcloud的用户隐私交互
         core.exportVariable('STACK', 'hcloud-toolkit');
         const isInstalld = yield checkKooCLIInstall();
@@ -188,7 +188,7 @@ function checkKooCLIInstall() {
             return false;
         }
         core.info('KooCLI already installed and set to the path');
-        yield tools.execCommand(`hcloud version`);
+        yield tools.execCommand(`${kooCLI} version`);
         return true;
     });
 }
@@ -225,12 +225,18 @@ exports.installKooCLIOnMacos = installKooCLIOnMacos;
 function installKooCLIOnLinux() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is Linux.');
+        const hostType = os.arch();
+        const downloadInfo = getLinuxKooCLIDownloadInfo(hostType);
+        if (utils.checkParameterIsNull(downloadInfo.url) || utils.checkParameterIsNull(downloadInfo.packageName)) {
+            core.info(`KooCLI now support Linux AMD64 or Linux Arm64, your system is ${hostType}.`);
+            return;
+        }
         const kooCLIPath = './tmp/hcloud';
-        yield tools.execCommand(`mkdir -p ${kooCLIPath}`);
+        yield tools.execCommand(`sudo mkdir -p ${kooCLIPath}`);
         fs.chmodSync(kooCLIPath, context_1.LINUX_KOOCLI_MOD);
-        yield tools.execCommand(`curl -LO "https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"`);
+        yield tools.execCommand(`curl -LO ${downloadInfo.url}`);
         core.info(`extract KooCLI to ${kooCLIPath}`);
-        yield tools.execCommand(`tar -zxvf huaweicloud-cli-linux-amd64.tar.gz -C ${kooCLIPath}`);
+        yield tools.execCommand(`tar -zxvf ${downloadInfo.packageName} -C ${kooCLIPath}`);
         core.addPath(kooCLIPath);
     });
 }
@@ -261,6 +267,28 @@ function updateKooCLI() {
     });
 }
 exports.updateKooCLI = updateKooCLI;
+/**
+ * 根据linux操作系统获得cli下载地址和包名，目前linux支持Linux AMD 64位 和 ARM 64位操作系统
+ * @param hostType
+ * @returns
+ */
+function getLinuxKooCLIDownloadInfo(hostType) {
+    const downloadInfo = {
+        url: '',
+        packageName: '',
+    };
+    if (hostType === 'aarch64') {
+        downloadInfo.url =
+            'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-arm64.tar.gz';
+        downloadInfo.packageName = 'huaweicloud-cli-linux-arm64.tar.gz';
+    }
+    if (hostType === 'x86_64') {
+        downloadInfo.url =
+            'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz';
+        downloadInfo.packageName = 'huaweicloud-cli-linux-amd64.tar.gz';
+    }
+    return downloadInfo;
+}
 //# sourceMappingURL=install.js.map
 
 /***/ }),
@@ -322,12 +350,12 @@ function run() {
             core.setFailed('can not install KooCLI on system.');
             return;
         }
-        // 配置KooCLI
+        // 配置默认KooCLI
         const isConfigSuccess = yield install.configureKooCLI(inputs.accessKey, inputs.secretKey, inputs === null || inputs === void 0 ? void 0 : inputs.region);
         //执行远程操作
         if (isConfigSuccess) {
             for (const command of inputs.commandList) {
-                if (!utils.checkParameterIsNull(command)) {
+                if (!utils.checkCommand(command)) {
                     yield tools.execCommand(command);
                 }
             }
@@ -373,7 +401,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.checkCommandIsNull = exports.checkParameterIsNull = exports.checkAkSk = exports.checkInputs = void 0;
+exports.checkCommand = exports.checkParameterIsNull = exports.checkAkSk = exports.checkInputs = void 0;
 const core = __importStar(__nccwpck_require__(186));
 /**
  * 检查输入的各参数是否正常
@@ -383,10 +411,6 @@ const core = __importStar(__nccwpck_require__(186));
 function checkInputs(inputs) {
     if (!checkAkSk(inputs.accessKey, inputs.secretKey)) {
         core.setFailed('ak or sk is not correct.');
-        return false;
-    }
-    if (!checkCommandIsNull(inputs.commandList)) {
-        core.setFailed('enter at least one command.');
         return false;
     }
     return true;
@@ -414,14 +438,22 @@ function checkParameterIsNull(parameter) {
 }
 exports.checkParameterIsNull = checkParameterIsNull;
 /**
- * 判断操作命令列表是否为空
- * @param command_list
+ * 判断操作命令是否合法
+ * @param command
  * @returns
  */
-function checkCommandIsNull(command_list) {
-    return command_list.length > 0;
+function checkCommand(command) {
+    if (checkParameterIsNull(command)) {
+        core.info(`command should not be empty.`);
+        return false;
+    }
+    if (!command.startsWith('hcloud')) {
+        core.info('command should start with "hcloud", please check your command.');
+        return false;
+    }
+    return true;
 }
-exports.checkCommandIsNull = checkCommandIsNull;
+exports.checkCommand = checkCommand;
 //# sourceMappingURL=utils.js.map
 
 /***/ }),

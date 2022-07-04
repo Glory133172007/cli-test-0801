@@ -11,10 +11,6 @@ export function checkInputs(inputs: context.Inputs): boolean {
         core.setFailed('ak or sk is not correct.');
         return false;
     }
-    if (!checkCommandIsNull(inputs.commandList)) {
-        core.setFailed('enter at least one command.');
-        return false;
-    }
     return true;
 }
 
@@ -40,10 +36,18 @@ export function checkParameterIsNull(parameter: string): boolean {
 }
 
 /**
- * 判断操作命令列表是否为空
- * @param command_list
+ * 判断操作命令是否合法
+ * @param command
  * @returns
  */
-export function checkCommandIsNull(command_list: string[]): boolean {
-    return command_list.length > 0;
+export function checkCommand(command: string): boolean {
+    if (checkParameterIsNull(command)) {
+        core.info(`command should not be empty.`);
+        return false;
+    }
+    if (!command.startsWith('hcloud')) {
+        core.info('command should start with "hcloud", please check your command.');
+        return false;
+    }
+    return true;
 }

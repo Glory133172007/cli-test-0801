@@ -19,13 +19,13 @@ export async function run() {
         return;
     }
 
-    // 配置KooCLI
+    // 配置默认KooCLI
     const isConfigSuccess = await install.configureKooCLI(inputs.accessKey, inputs.secretKey, inputs?.region);
 
     //执行远程操作
     if (isConfigSuccess) {
         for (const command of inputs.commandList) {
-            if (!utils.checkParameterIsNull(command)) {
+            if (!utils.checkCommand(command)) {
                 await tools.execCommand(command);
             }
         }
