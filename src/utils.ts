@@ -11,6 +11,18 @@ export function checkInputs(inputs: context.Inputs): boolean {
         core.setFailed('ak or sk is not correct.');
         return false;
     }
+    if (!checkRegion(inputs.region)) {
+        core.setFailed('region is not correct.');
+        return false;
+    }
+    if (inputs.commandList.length > 0) {
+        inputs.commandList.forEach((command: string) => {
+            if (!checkCommand(command)) {
+                core.setFailed(`your command: ${command} is not correct.`);
+                return false;
+            }
+        });
+    }
     return true;
 }
 
@@ -24,6 +36,15 @@ const akReg = /^[a-zA-Z0-9]{10,30}$/;
 const skReg = /^[a-zA-Z0-9]{30,50}$/;
 export function checkAkSk(ak: string, sk: string): boolean {
     return akReg.test(ak) && skReg.test(sk);
+}
+
+/**
+ * 检查region格式是否合法
+ * @returns
+ */
+const regionReg = /^[a-z]{2}-[a-z]+-[1-9]$/;
+export function checkRegion(region: string): boolean {
+    return regionReg.test(region);
 }
 
 /**

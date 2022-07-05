@@ -15,7 +15,7 @@ export async function run() {
     // 检查当前环境是否具备远程命令操作条件
     const isInstallSuccess = await install.installCLIOnSystem();
     if (!isInstallSuccess) {
-        core.setFailed('can not install KooCLI on system.');
+        core.setFailed('can not install KooCLI on your system.');
         return;
     }
 
@@ -24,8 +24,8 @@ export async function run() {
 
     //执行远程操作
     if (isConfigSuccess) {
-        for (const command of inputs.commandList) {
-            if (!utils.checkCommand(command)) {
+        if (inputs.commandList.length > 0) {
+            for (const command of inputs.commandList) {
                 await tools.execCommand(command);
             }
         }

@@ -12,7 +12,7 @@ export async function execCommand(commandLine: string, args?: string[]): Promise
         }
         return execResult.exitCode === 0;
     } catch (error) {
-        core.info(`Exec command failed because: ${error}`);
+        core.info(`Exec command failed, because: ${error}`);
         return false;
     }
 }
