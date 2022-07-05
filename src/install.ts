@@ -31,7 +31,7 @@ export async function installCLIOnSystem(): Promise<boolean> {
 }
 
 /**
- * 检查KooCLI是否已经在系统上完成安装，并输出版本
+ * 检查KooCLI是否已经在系统上完成安装并成功设置PATH
  * @returns
  */
 export async function checkKooCLIInstall(): Promise<boolean> {
@@ -115,7 +115,6 @@ export async function configureKooCLI(ak: string, sk: string, region?: string): 
     if (region) {
         args.push(`--cli-region=${region}`);
     }
-    args.push;
     return await tools.execCommand(`hcloud configure set`, args);
 }
 

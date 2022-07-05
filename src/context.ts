@@ -24,7 +24,7 @@ export function getInputs(): Inputs {
     return {
         accessKey: core.getInput('access_key', { required: true }),
         secretKey: core.getInput('secret_key', { required: true }),
-        region: core.getInput('region', { required: true }),
+        region: core.getInput('region', { required: false }),
         commandList: core.getMultilineInput('command_list', { required: false }),
     };
 }

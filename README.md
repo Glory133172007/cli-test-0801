@@ -19,7 +19,7 @@
 > 关于参数'region'：在没有添加参数'--cli-region'的操作指令中，会使用这个默认region
 
 ## **使用样例:**
-1、不使用参数，查询弹性云服务器*华北-北京四*API版本信息列表（使用默认region）
+1、查询弹性云服务器*华北-北京四*API版本信息列表（使用默认region）
 ```yaml
 jobs:
   upload_file:
@@ -32,22 +32,20 @@ jobs:
           secret_key: ${{ secrets.SECRETACCESSKEY }}
           region: 'cn-north-4'
           commandList: 'hcloud ECS NovaListVersions'
-      - run: 'hcloud version'
 ```
-2、命令行使用参数指定region，查询弹性云服务器*华北-北京一*API版本信息列表
+2、指定参数，查询弹性云服务器指定API版本信息
 ```yaml
 jobs:
   upload_file:
     runs-on: ubuntu-latest
     steps:
-      - name: List Versions of ECS With Param cli-region By KooCLI
+      - name: Show Specific Version Info of ECS By KooCLI
         uses: huaweicloud/huaweicloud-cli-action@v1.0.0
         with:
           access_key: ${{ secrets.ACCESSKEY }}
           secret_key: ${{ secrets.SECRETACCESSKEY }}
           region: 'cn-north-4'
-      # 此处因命令配置了region参数，所以将会查找'cn-north-1'区域的ECS版本信息列表，若未配置则使用action配置时的默认区域'cn-north-4'
-      - run: 'hcloud ECS NovaListVersions --cli-region="cn-north-1"'
+      - run: 'hcloud ECS NovaShowVersion --cli-region="cn-north-4" --api_version="v2.1"'
 ```
 
-具体样例请见 [huaweicloud-cli-workflow-samples](https://github.com/huaweicloud/huaweicloud-cli-workflow-samples)
+具体使用样例请见 [huaweicloud-cli-workflow-samples](https://github.com/huaweicloud/huaweicloud-cli-workflow-samples)

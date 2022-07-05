@@ -12,7 +12,7 @@ export async function run() {
         return;
     }
 
-    // 检查当前环境是否具备远程命令操作条件
+    // 检查并在尝试当前环境安装KooCLI
     const isInstallSuccess = await install.installCLIOnSystem();
     if (!isInstallSuccess) {
         core.setFailed('can not install KooCLI on your system.');
@@ -22,7 +22,7 @@ export async function run() {
     // 配置默认KooCLI
     const isConfigSuccess = await install.configureKooCLI(inputs.accessKey, inputs.secretKey, inputs?.region);
 
-    //执行远程操作
+    // 若配置成功且传入命令，执行命令
     if (isConfigSuccess) {
         if (inputs.commandList.length > 0) {
             for (const command of inputs.commandList) {

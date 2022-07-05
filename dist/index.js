@@ -45,7 +45,7 @@ function getInputs() {
     return {
         accessKey: core.getInput('access_key', { required: true }),
         secretKey: core.getInput('secret_key', { required: true }),
-        region: core.getInput('region', { required: true }),
+        region: core.getInput('region', { required: false }),
         commandList: core.getMultilineInput('command_list', { required: false }),
     };
 }
@@ -181,7 +181,7 @@ function installCLIOnSystem() {
 }
 exports.installCLIOnSystem = installCLIOnSystem;
 /**
- * 检查KooCLI是否已经在系统上完成安装，并输出版本
+ * 检查KooCLI是否已经在系统上完成安装并成功设置PATH
  * @returns
  */
 function checkKooCLIInstall() {
@@ -271,7 +271,6 @@ function configureKooCLI(ak, sk, region) {
         if (region) {
             args.push(`--cli-region=${region}`);
         }
-        args.push;
         return yield tools.execCommand(`hcloud configure set`, args);
     });
 }
@@ -361,7 +360,7 @@ function run() {
         if (!utils.checkInputs(inputs)) {
             return;
         }
-        // 检查当前环境是否具备远程命令操作条件
+        // 检查并在尝试当前环境安装KooCLI
         const isInstallSuccess = yield install.installCLIOnSystem();
         if (!isInstallSuccess) {
             core.setFailed('can not install KooCLI on your system.');
@@ -369,7 +368,7 @@ function run() {
         }
         // 配置默认KooCLI
         const isConfigSuccess = yield install.configureKooCLI(inputs.accessKey, inputs.secretKey, inputs === null || inputs === void 0 ? void 0 : inputs.region);
-        //执行远程操作
+        // 若配置成功且传入命令，执行命令
         if (isConfigSuccess) {
             if (inputs.commandList.length > 0) {
                 for (const command of inputs.commandList) {
@@ -420,6 +419,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkCommand = exports.checkParameterIsNull = exports.checkRegion = exports.checkAkSk = exports.checkInputs = void 0;
 const core = __importStar(__nccwpck_require__(186));
+const akReg = /^[a-zA-Z0-9]{10,30}$/;
+const skReg = /^[a-zA-Z0-9]{30,50}$/;
+const regionReg = /^[a-z]{2}-[a-z]+-[1-9]$/;
 /**
  * 检查输入的各参数是否正常
  * @param inputs
@@ -445,9 +447,6 @@ function checkInputs(inputs) {
     return true;
 }
 exports.checkInputs = checkInputs;
-const akReg = /^[a-zA-Z0-9]{10,30}$/;
-const skReg = /^[a-zA-Z0-9]{30,50}$/;
-const regionReg = /^[a-z]{2}-[a-z]+-[1-9]$/;
 /**
  * 检查ak/sk是否合法
  * @param ak

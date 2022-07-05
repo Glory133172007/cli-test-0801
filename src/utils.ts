@@ -1,6 +1,10 @@
 import * as core from '@actions/core';
 import * as context from './context';
 
+const akReg = /^[a-zA-Z0-9]{10,30}$/;
+const skReg = /^[a-zA-Z0-9]{30,50}$/;
+const regionReg = /^[a-z]{2}-[a-z]+-[1-9]$/;
+
 /**
  * 检查输入的各参数是否正常
  * @param inputs
@@ -26,9 +30,6 @@ export function checkInputs(inputs: context.Inputs): boolean {
     return true;
 }
 
-const akReg = /^[a-zA-Z0-9]{10,30}$/;
-const skReg = /^[a-zA-Z0-9]{30,50}$/;
-const regionReg = /^[a-z]{2}-[a-z]+-[1-9]$/;
 /**
  * 检查ak/sk是否合法
  * @param ak
