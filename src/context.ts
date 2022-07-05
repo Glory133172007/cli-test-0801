@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 
 export const LINUX_KOOCLI_MOD = '755';
 export const WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
-export const LINUX_KOOCLI_PATH = './usr/hcloud';
+export const LINUX_KOOCLI_PATH = '/usr/hcloud';
 export const MACOS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/hcloud_install.sh';
 export const WINDOWS_KOOCLI_URL =
     'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-windows-amd64.zip';

@@ -34,7 +34,7 @@ exports.getInputs = exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = exports.LINUX_AMD_KO
 const core = __importStar(__nccwpck_require__(186));
 exports.LINUX_KOOCLI_MOD = '755';
 exports.WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
-exports.LINUX_KOOCLI_PATH = './usr/hcloud';
+exports.LINUX_KOOCLI_PATH = '/usr/hcloud';
 exports.MACOS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/hcloud_install.sh';
 exports.WINDOWS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-windows-amd64.zip';
 exports.LINUX_ARM_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-arm64.tar.gz';
@@ -445,14 +445,15 @@ function checkInputs(inputs) {
     return true;
 }
 exports.checkInputs = checkInputs;
+const akReg = /^[a-zA-Z0-9]{10,30}$/;
+const skReg = /^[a-zA-Z0-9]{30,50}$/;
+const regionReg = /^[a-z]{2}-[a-z]+-[1-9]$/;
 /**
  * 检查ak/sk是否合法
  * @param ak
  * @param sk
  * @returns
  */
-const akReg = /^[a-zA-Z0-9]{10,30}$/;
-const skReg = /^[a-zA-Z0-9]{30,50}$/;
 function checkAkSk(ak, sk) {
     return akReg.test(ak) && skReg.test(sk);
 }
@@ -461,7 +462,6 @@ exports.checkAkSk = checkAkSk;
  * 检查region格式是否合法
  * @returns
  */
-const regionReg = /^[a-z]{2}-[a-z]+-[1-9]$/;
 function checkRegion(region) {
     return regionReg.test(region);
 }
