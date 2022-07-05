@@ -34,7 +34,7 @@ jobs:
           commandList: 'hcloud ECS NovaListVersions'
       - run: 'hcloud version'
 ```
-2、使用参数指定region，查询弹性云服务器*华北-北京一*API版本信息列表
+2、命令行使用参数指定region，查询弹性云服务器*华北-北京一*API版本信息列表
 ```yaml
 jobs:
   upload_file:
@@ -46,6 +46,7 @@ jobs:
           access_key: ${{ secrets.ACCESSKEY }}
           secret_key: ${{ secrets.SECRETACCESSKEY }}
           region: 'cn-north-4'
+      # 此处因命令配置了region参数，所以将会查找'cn-north-1'区域的ECS版本信息列表，若未配置则使用action配置时的默认区域'cn-north-4'
       - run: 'hcloud ECS NovaListVersions --cli-region="cn-north-1"'
 ```
 
