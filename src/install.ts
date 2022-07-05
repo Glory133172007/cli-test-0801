@@ -97,6 +97,8 @@ export async function installKooCLIOnLinux(): Promise<void> {
  * 在当前的windows系统上安装KooCLI
  */
 export async function installCLLIOnWindows(): Promise<void> {
+    core.info('current system is Windows.');
+
     fs.mkdirSync(WINDOWS_KOOCLI_PATH);
     const cliPath = await tc.downloadTool(WINDOWS_KOOCLI_URL, WINDOWS_KOOCLI_PATH);
     const cliExtractedFolder = await tc.extractZip(cliPath, WINDOWS_KOOCLI_PATH);
