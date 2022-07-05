@@ -1,23 +1,24 @@
-name: 'HuaweiCloud Cli Action'
-description: 'use ssh channel,upload local file and directory to remote server ,or download file and directory from remote server'
+name: 'HuaweiCloud KooCLI Action'
+description: 'Setup KooCLI and add it to the PATH and set default configuration.'
 branding:
   icon: 'cloud'
   color: 'red'
 author: 'lixinyu39'
 inputs:
- access_key:
-    description: "Access key id"
+  access_key:
+    description: 'Access key id'
     required: true
   secret_key:
-    description: "Secret access key"
+    description: 'Secret access key'
     required: true
   region:
     description: 'Region'
     required: false
     default: 'cn-north-4'
   command_list: 
-    required: true
+    required: false
     description: 'operation instructions provided by KooCLI to configure the working environment or call open APIs of Huawei Cloud services'
+
 runs:
   using: 'node16'
   main: 'dist/index.js'

@@ -6,8 +6,8 @@ describe('test ak/sk', () => {
     const testCase = [
         {
             description: 'right case',
-            ak: 'XGMTYY5SM4CIACVAALLA',
-            sk: '2uWJCc9QuL6V6REkN9xresm0TBY5S4KNGTpIwWWb',
+            ak: 'X***************A',
+            sk: '2*************************b',
             result: true,
         },
         {
@@ -27,12 +27,20 @@ describe('test ak/sk', () => {
 
 // 检查字符串是否为空
 test('test checkParameterIsNull', () => {
-    expect(utils.checkParameterIsNull('aa')).toBeFalsy;
-    expect(utils.checkParameterIsNull('')).toBeTruthy;
+    expect(utils.checkParameterIsNull('aa')).toBeFalsy();
+    expect(utils.checkParameterIsNull('')).toBeTruthy();
 });
 
 // 判断操作命令列表是否为空
 test('test checkParameterIsNull', () => {
-    expect(utils.checkCommandIsNull(['aa', 'bb'])).toBeFalsy;
-    expect(utils.checkCommandIsNull([])).toBeTruthy;
+    expect(utils.checkCommand('hcloud version')).toBeTruthy();
+    expect(utils.checkCommand('node -v')).toBeFalsy();
+    expect(utils.checkCommand('')).toBeFalsy();
+});
+
+// 检查region参数是否合法
+test('test region', () => {
+    expect(utils.checkRegion('cn-north-1')).toBeTruthy();
+    expect(utils.checkRegion('cnnorth-4')).toBeFalsy();
+    expect(utils.checkRegion('cn1-north-4')).toBeFalsy();
 });

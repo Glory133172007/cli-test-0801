@@ -2,7 +2,7 @@
     "name": "huaweicloud-cli-action",
     "version": "1.0.0",
     "private": true,
-    "description": "use commands to configure the working environment or call open APIs of Huawei Cloud services with KooCLI",
+    "description": "action to set up KooCLI, add it to the PATH, and set default configuration.",
     "main": "lib/main.js",
     "scripts": {
         "build": "tsc",
@@ -28,7 +28,8 @@
     "license": "MIT",
     "dependencies": {
         "@actions/core": "^1.8.2",
-        "@actions/exec": "^1.1.1"
+        "@actions/exec": "^1.1.1",
+        "@actions/tool-cache": "^2.0.1"
     },
     "devDependencies": {
         "@types/jest": "^28.1.1",
