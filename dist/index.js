@@ -92,7 +92,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.execCommand = void 0;
+exports.getExecResult = exports.execCommand = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
 function execCommand(commandLine, args) {
@@ -114,6 +114,25 @@ function execCommand(commandLine, args) {
     });
 }
 exports.execCommand = execCommand;
+function getExecResult(commandLine, args) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const execResult = yield exec.getExecOutput(commandLine, args, {
+                ignoreReturnCode: false,
+            });
+            if (execResult.exitCode !== 0) {
+                return execResult.stderr;
+            }
+            else {
+                return execResult.stdout;
+            }
+        }
+        catch (error) {
+            return '';
+        }
+    });
+}
+exports.getExecResult = getExecResult;
 //# sourceMappingURL=execTools.js.map
 
 /***/ }),
@@ -232,7 +251,7 @@ exports.installKooCLIOnMacos = installKooCLIOnMacos;
 function installKooCLIOnLinux() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is Linux.');
-        const hostType = os.arch();
+        const hostType = yield tools.getExecResult('echo $HOSTTYPE');
         const downloadInfo = getLinuxKooCLIDownloadInfo(hostType);
         if (utils.checkParameterIsNull(downloadInfo.url) || utils.checkParameterIsNull(downloadInfo.packageName)) {
             core.info(`KooCLI can be run on Linux AMD64 or Linux Arm64, your system is ${hostType}.`);
@@ -295,11 +314,11 @@ function getLinuxKooCLIDownloadInfo(hostType) {
         url: '',
         packageName: '',
     };
-    if (hostType === 'aarch64') {
+    if (hostType.includes('aarch64')) {
         downloadInfo.url = context_1.LINUX_ARM_KOOCLI_URL;
         downloadInfo.packageName = context_1.LINUX_ARM_KOOCLI_PACKAGE_NAME;
     }
-    if (hostType === 'x86_64') {
+    if (hostType.includes('x86_64')) {
         downloadInfo.url = context_1.LINUX_AMD_KOOCLI_URL;
         downloadInfo.packageName = context_1.LINUX_AMD_KOOCLI_PACKAGE_NAME;
     }

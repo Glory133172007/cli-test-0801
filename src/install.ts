@@ -76,7 +76,7 @@ export async function installKooCLIOnMacos(): Promise<void> {
 export async function installKooCLIOnLinux(): Promise<void> {
     core.info('current system is Linux.');
 
-    const hostType = os.arch();
+    const hostType = await tools.getExecResult('echo $HOSTTYPE');
     const downloadInfo = getLinuxKooCLIDownloadInfo(hostType);
     if (utils.checkParameterIsNull(downloadInfo.url) || utils.checkParameterIsNull(downloadInfo.packageName)) {
         core.info(`KooCLI can be run on Linux AMD64 or Linux Arm64, your system is ${hostType}.`);
@@ -139,11 +139,11 @@ function getLinuxKooCLIDownloadInfo(hostType: string): {
         url: '',
         packageName: '',
     };
-    if (hostType === 'aarch64') {
+    if (hostType.includes('aarch64')) {
         downloadInfo.url = LINUX_ARM_KOOCLI_URL;
         downloadInfo.packageName = LINUX_ARM_KOOCLI_PACKAGE_NAME;
     }
-    if (hostType === 'x86_64') {
+    if (hostType.includes('x86_64')) {
         downloadInfo.url = LINUX_AMD_KOOCLI_URL;
         downloadInfo.packageName = LINUX_AMD_KOOCLI_PACKAGE_NAME;
     }

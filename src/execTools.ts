@@ -16,3 +16,18 @@ export async function execCommand(commandLine: string, args?: string[]): Promise
         return false;
     }
 }
+
+export async function getExecResult(commandLine: string, args?: string[]): Promise<string> {
+    try {
+        const execResult = await exec.getExecOutput(commandLine, args, {
+            ignoreReturnCode: false,
+        });
+        if (execResult.exitCode !== 0) {
+            return execResult.stderr;
+        } else {
+            return execResult.stdout;
+        }
+    } catch (error) {
+        return '';
+    }
+}
