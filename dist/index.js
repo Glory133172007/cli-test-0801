@@ -265,7 +265,7 @@ exports.installKooCLIOnMacos = installKooCLIOnMacos;
 function installKooCLIOnLinux() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is Linux.');
-        const hostType = yield tools.getExecResult('echo $HOSTTYPE');
+        const hostType = yield tools.getExecResult(`uname -a`);
         const downloadInfo = getLinuxKooCLIDownloadInfo(hostType);
         if (utils.checkParameterIsNull(downloadInfo.url) || utils.checkParameterIsNull(downloadInfo.packageName)) {
             core.info(`KooCLI can be run on Linux AMD64 or Linux Arm64, your system is ${hostType}.`);
@@ -284,7 +284,7 @@ exports.installKooCLIOnLinux = installKooCLIOnLinux;
  */
 function installKooCLIOnLinuxAndMacOS(installPath, packageName, downloadUrl, mod) {
     return __awaiter(this, void 0, void 0, function* () {
-        fs.mkdirSync(installPath);
+        yield tools.execCommand(`sudo mkdir -p ${installPath}`);
         yield tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
         yield tools.execCommand(`curl -LO ${downloadUrl}`);
         core.info(`extract KooCLI to ${installPath}`);
