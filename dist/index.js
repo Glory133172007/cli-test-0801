@@ -32,7 +32,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getInputs = exports.MACOS_AMD_KOOCLI_PACKAGE_NAME = exports.MACOS_AMD_KOOCLI_URL = exports.MACOS_ARM_KOOCLI_PACKAGE_NAME = exports.MACOS_ARM_KOOCLI_URL = exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = exports.LINUX_AMD_KOOCLI_URL = exports.LINUX_ARM_KOOCLI_PACKAGE_NAME = exports.LINUX_ARM_KOOCLI_URL = exports.LINUX_MACOS_KOOCLI_PATH = exports.WINDOWS_KOOCLI_URL = exports.WINDOWS_KOOCLI_PATH = exports.KOOCLI_MOD = void 0;
 const core = __importStar(__nccwpck_require__(186));
-exports.KOOCLI_MOD = '775';
+exports.KOOCLI_MOD = '755';
 // Windows的安装路径，下载地址
 exports.WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
 exports.WINDOWS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-windows-amd64.zip';
@@ -186,7 +186,6 @@ exports.updateKooCLI = exports.configureKooCLI = exports.installCLLIOnWindows = 
 const core = __importStar(__nccwpck_require__(186));
 const io = __importStar(__nccwpck_require__(436));
 const tc = __importStar(__nccwpck_require__(784));
-const fs = __importStar(__nccwpck_require__(147));
 const os = __importStar(__nccwpck_require__(37));
 const tools = __importStar(__nccwpck_require__(778));
 const utils = __importStar(__nccwpck_require__(918));
@@ -288,8 +287,9 @@ function installKooCLIOnLinuxAndMacOS(installPath, packageName, downloadUrl, mod
         yield tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
         yield tools.execCommand(`curl -LO ${downloadUrl}`);
         core.info(`extract KooCLI to ${installPath}`);
-        yield tools.execCommand(`tar -zxvf ${packageName} -C ${installPath}`);
+        yield tools.execCommand(`sudo tar -zxvf ${packageName} -C ${installPath}`);
         core.addPath(installPath);
+        yield tools.execCommand(`sudo chmod a+x ${installPath}/hcloud`);
     });
 }
 /**
@@ -298,7 +298,6 @@ function installKooCLIOnLinuxAndMacOS(installPath, packageName, downloadUrl, mod
 function installCLLIOnWindows() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is Windows.');
-        fs.mkdirSync(context.WINDOWS_KOOCLI_PATH);
         const cliPath = yield tc.downloadTool(context.WINDOWS_KOOCLI_URL, `${context.WINDOWS_KOOCLI_PATH}/hcloud.zip`);
         const cliExtractedFolder = yield tc.extractZip(cliPath, context.WINDOWS_KOOCLI_PATH);
         core.addPath(cliExtractedFolder);
