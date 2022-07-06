@@ -5,17 +5,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as tools from './execTools';
 import * as utils from './utils';
-import {
-    LINUX_KOOCLI_MOD,
-    WINDOWS_KOOCLI_PATH,
-    LINUX_KOOCLI_PATH,
-    MACOS_KOOCLI_URL,
-    WINDOWS_KOOCLI_URL,
-    LINUX_ARM_KOOCLI_URL,
-    LINUX_ARM_KOOCLI_PACKAGE_NAME,
-    LINUX_AMD_KOOCLI_URL,
-    LINUX_AMD_KOOCLI_PACKAGE_NAME,
-} from './context';
+import * as context from './context';
 
 /**
  * 检查系统上是否安装了KooCLI，如果没有，会尝试进行安装，如果安装不成功，则提示安装失败，结束操作
@@ -62,11 +52,25 @@ export async function installKooCLIByPlatform(platform: string): Promise<void> {
 }
 
 /**
- * mac系统安装KooCLI
+ * MacOS系统安装KooCLI
+ * KooCLI支持MacOS AMD 64位 和 ARM 64位操作系统
  */
 export async function installKooCLIOnMacos(): Promise<void> {
     core.info('current system is MacOS.');
-    await tools.execCommand(`curl -sSL ${MACOS_KOOCLI_URL} -o ./hcloud_install.sh && bash ./hcloud_install.sh -y`);
+
+    const hostType = await tools.getExecResult('uname -a');
+    const downloadInfo = getMacOSKooCLIDownloadInfo(hostType);
+    if (utils.checkParameterIsNull(downloadInfo.url) || utils.checkParameterIsNull(downloadInfo.packageName)) {
+        core.info(`KooCLI can be run on MacOS AMD64 or MacOS Arm64, your system is ${hostType}.`);
+        return;
+    }
+
+    await installKooCLIOnLinuxAndMacOS(
+        context.LINUX_MACOS_KOOCLI_PATH,
+        downloadInfo.packageName,
+        downloadInfo.url,
+        context.KOOCLI_MOD
+    );
 }
 
 /**
@@ -83,14 +87,35 @@ export async function installKooCLIOnLinux(): Promise<void> {
         return;
     }
 
-    await tools.execCommand(`sudo mkdir -p ${LINUX_KOOCLI_PATH}`);
-    fs.chmodSync(LINUX_KOOCLI_PATH, LINUX_KOOCLI_MOD);
+    await installKooCLIOnLinuxAndMacOS(
+        context.LINUX_MACOS_KOOCLI_PATH,
+        downloadInfo.packageName,
+        downloadInfo.url,
+        context.KOOCLI_MOD
+    );
+}
 
-    await tools.execCommand(`curl -LO ${downloadInfo.url}`);
+/**
+ * 在Linux和MacOS上创建目录，获取权限，安装KooCLI并将目录添加到PATH
+ * @param installPath
+ * @param packageName
+ * @param downloadUrl
+ * @param mod
+ */
+async function installKooCLIOnLinuxAndMacOS(
+    installPath: string,
+    packageName: string,
+    downloadUrl: string,
+    mod: string
+): Promise<void> {
+    await tools.execCommand(`sudo mkdir -p ${installPath}`);
+    await tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
 
-    core.info(`extract KooCLI to ${LINUX_KOOCLI_PATH}`);
-    await tools.execCommand(`tar -zxvf ${downloadInfo.packageName} -C ${LINUX_KOOCLI_PATH}`);
-    core.addPath(LINUX_KOOCLI_PATH);
+    await tools.execCommand(`curl -LO ${downloadUrl}`);
+
+    core.info(`extract KooCLI to ${installPath}`);
+    await tools.execCommand(`tar -zxvf ${packageName} -C ${installPath}`);
+    core.addPath(installPath);
 }
 
 /**
@@ -99,9 +124,9 @@ export async function installKooCLIOnLinux(): Promise<void> {
 export async function installCLLIOnWindows(): Promise<void> {
     core.info('current system is Windows.');
 
-    fs.mkdirSync(WINDOWS_KOOCLI_PATH);
-    const cliPath = await tc.downloadTool(WINDOWS_KOOCLI_URL, WINDOWS_KOOCLI_PATH);
-    const cliExtractedFolder = await tc.extractZip(cliPath, WINDOWS_KOOCLI_PATH);
+    fs.mkdirSync(context.WINDOWS_KOOCLI_PATH);
+    const cliPath = await tc.downloadTool(context.WINDOWS_KOOCLI_URL, `${context.WINDOWS_KOOCLI_PATH}/hcloud.zip`);
+    const cliExtractedFolder = await tc.extractZip(cliPath, context.WINDOWS_KOOCLI_PATH);
     core.addPath(cliExtractedFolder);
 }
 
@@ -140,12 +165,36 @@ function getLinuxKooCLIDownloadInfo(hostType: string): {
         packageName: '',
     };
     if (hostType.includes('aarch64')) {
-        downloadInfo.url = LINUX_ARM_KOOCLI_URL;
-        downloadInfo.packageName = LINUX_ARM_KOOCLI_PACKAGE_NAME;
+        downloadInfo.url = context.LINUX_ARM_KOOCLI_URL;
+        downloadInfo.packageName = context.LINUX_ARM_KOOCLI_PACKAGE_NAME;
     }
     if (hostType.includes('x86_64')) {
-        downloadInfo.url = LINUX_AMD_KOOCLI_URL;
-        downloadInfo.packageName = LINUX_AMD_KOOCLI_PACKAGE_NAME;
+        downloadInfo.url = context.LINUX_AMD_KOOCLI_URL;
+        downloadInfo.packageName = context.LINUX_AMD_KOOCLI_PACKAGE_NAME;
+    }
+    return downloadInfo;
+}
+
+/**
+ * 根据MacOS操作系统获得cli下载地址和包名，目前MacOS支持MacOS AMD 64位 和 ARM 64位操作系统
+ * @param hostType
+ * @returns
+ */
+function getMacOSKooCLIDownloadInfo(hostType: string): {
+    url: string;
+    packageName: string;
+} {
+    const downloadInfo = {
+        url: '',
+        packageName: '',
+    };
+    if (hostType.includes('arm64')) {
+        downloadInfo.url = context.MACOS_ARM_KOOCLI_URL;
+        downloadInfo.packageName = context.MACOS_ARM_KOOCLI_PACKAGE_NAME;
+    }
+    if (hostType.includes('x86_64')) {
+        downloadInfo.url = context.MACOS_AMD_KOOCLI_URL;
+        downloadInfo.packageName = context.MACOS_AMD_KOOCLI_PACKAGE_NAME;
     }
     return downloadInfo;
 }

@@ -30,17 +30,24 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getInputs = exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = exports.LINUX_AMD_KOOCLI_URL = exports.LINUX_ARM_KOOCLI_PACKAGE_NAME = exports.LINUX_ARM_KOOCLI_URL = exports.WINDOWS_KOOCLI_URL = exports.MACOS_KOOCLI_URL = exports.LINUX_KOOCLI_PATH = exports.WINDOWS_KOOCLI_PATH = exports.LINUX_KOOCLI_MOD = void 0;
+exports.getInputs = exports.MACOS_AMD_KOOCLI_PACKAGE_NAME = exports.MACOS_AMD_KOOCLI_URL = exports.MACOS_ARM_KOOCLI_PACKAGE_NAME = exports.MACOS_ARM_KOOCLI_URL = exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = exports.LINUX_AMD_KOOCLI_URL = exports.LINUX_ARM_KOOCLI_PACKAGE_NAME = exports.LINUX_ARM_KOOCLI_URL = exports.LINUX_MACOS_KOOCLI_PATH = exports.WINDOWS_KOOCLI_URL = exports.WINDOWS_KOOCLI_PATH = exports.KOOCLI_MOD = void 0;
 const core = __importStar(__nccwpck_require__(186));
-exports.LINUX_KOOCLI_MOD = '755';
+exports.KOOCLI_MOD = '777';
+// Windows的安装路径，下载地址
 exports.WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
-exports.LINUX_KOOCLI_PATH = '/usr/hcloud';
-exports.MACOS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/hcloud_install.sh';
 exports.WINDOWS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-windows-amd64.zip';
+// Linux和MacOS的KooCLI安装路径
+exports.LINUX_MACOS_KOOCLI_PATH = '/usr/local/hcloud';
+// Linux ARM64 和 AMD64 的安装路径，下载地址和包名
 exports.LINUX_ARM_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-arm64.tar.gz';
 exports.LINUX_ARM_KOOCLI_PACKAGE_NAME = 'huaweicloud-cli-linux-arm64.tar.gz';
 exports.LINUX_AMD_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz';
 exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = 'huaweicloud-cli-linux-amd64.tar.gz';
+// MacOS ARM64 和 AMD64 的安装路径下载地址和包名
+exports.MACOS_ARM_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-mac-arm64.tar.gz';
+exports.MACOS_ARM_KOOCLI_PACKAGE_NAME = 'huaweicloud-cli-mac-arm64.tar.gz';
+exports.MACOS_AMD_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-mac-amd64.tar.gz';
+exports.MACOS_AMD_KOOCLI_PACKAGE_NAME = 'huaweicloud-cli-mac-amd64.tar.gz';
 function getInputs() {
     return {
         accessKey: core.getInput('access_key', { required: true }),
@@ -183,7 +190,7 @@ const fs = __importStar(__nccwpck_require__(147));
 const os = __importStar(__nccwpck_require__(37));
 const tools = __importStar(__nccwpck_require__(778));
 const utils = __importStar(__nccwpck_require__(918));
-const context_1 = __nccwpck_require__(842);
+const context = __importStar(__nccwpck_require__(842));
 /**
  * 检查系统上是否安装了KooCLI，如果没有，会尝试进行安装，如果安装不成功，则提示安装失败，结束操作
  * @returns
@@ -235,12 +242,19 @@ function installKooCLIByPlatform(platform) {
 }
 exports.installKooCLIByPlatform = installKooCLIByPlatform;
 /**
- * mac系统安装KooCLI
+ * MacOS系统安装KooCLI
+ * KooCLI支持MacOS AMD 64位 和 ARM 64位操作系统
  */
 function installKooCLIOnMacos() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is MacOS.');
-        yield tools.execCommand(`curl -sSL ${context_1.MACOS_KOOCLI_URL} -o ./hcloud_install.sh && bash ./hcloud_install.sh -y`);
+        const hostType = yield tools.getExecResult('uname -a');
+        const downloadInfo = getMacOSKooCLIDownloadInfo(hostType);
+        if (utils.checkParameterIsNull(downloadInfo.url) || utils.checkParameterIsNull(downloadInfo.packageName)) {
+            core.info(`KooCLI can be run on MacOS AMD64 or MacOS Arm64, your system is ${hostType}.`);
+            return;
+        }
+        yield installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url, context.KOOCLI_MOD);
     });
 }
 exports.installKooCLIOnMacos = installKooCLIOnMacos;
@@ -257,24 +271,36 @@ function installKooCLIOnLinux() {
             core.info(`KooCLI can be run on Linux AMD64 or Linux Arm64, your system is ${hostType}.`);
             return;
         }
-        yield tools.execCommand(`sudo mkdir -p ${context_1.LINUX_KOOCLI_PATH}`);
-        fs.chmodSync(context_1.LINUX_KOOCLI_PATH, context_1.LINUX_KOOCLI_MOD);
-        yield tools.execCommand(`curl -LO ${downloadInfo.url}`);
-        core.info(`extract KooCLI to ${context_1.LINUX_KOOCLI_PATH}`);
-        yield tools.execCommand(`tar -zxvf ${downloadInfo.packageName} -C ${context_1.LINUX_KOOCLI_PATH}`);
-        core.addPath(context_1.LINUX_KOOCLI_PATH);
+        yield installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url, context.KOOCLI_MOD);
     });
 }
 exports.installKooCLIOnLinux = installKooCLIOnLinux;
+/**
+ * 在Linux和MacOS上创建目录，获取权限，安装KooCLI并将目录添加到PATH
+ * @param installPath
+ * @param packageName
+ * @param downloadUrl
+ * @param mod
+ */
+function installKooCLIOnLinuxAndMacOS(installPath, packageName, downloadUrl, mod) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield tools.execCommand(`sudo mkdir -p ${installPath}`);
+        yield tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
+        yield tools.execCommand(`curl -LO ${downloadUrl}`);
+        core.info(`extract KooCLI to ${installPath}`);
+        yield tools.execCommand(`tar -zxvf ${packageName} -C ${installPath}`);
+        core.addPath(installPath);
+    });
+}
 /**
  * 在当前的windows系统上安装KooCLI
  */
 function installCLLIOnWindows() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is Windows.');
-        fs.mkdirSync(context_1.WINDOWS_KOOCLI_PATH);
-        const cliPath = yield tc.downloadTool(context_1.WINDOWS_KOOCLI_URL, context_1.WINDOWS_KOOCLI_PATH);
-        const cliExtractedFolder = yield tc.extractZip(cliPath, context_1.WINDOWS_KOOCLI_PATH);
+        fs.mkdirSync(context.WINDOWS_KOOCLI_PATH);
+        const cliPath = yield tc.downloadTool(context.WINDOWS_KOOCLI_URL, `${context.WINDOWS_KOOCLI_PATH}/hcloud.zip`);
+        const cliExtractedFolder = yield tc.extractZip(cliPath, context.WINDOWS_KOOCLI_PATH);
         core.addPath(cliExtractedFolder);
     });
 }
@@ -315,12 +341,32 @@ function getLinuxKooCLIDownloadInfo(hostType) {
         packageName: '',
     };
     if (hostType.includes('aarch64')) {
-        downloadInfo.url = context_1.LINUX_ARM_KOOCLI_URL;
-        downloadInfo.packageName = context_1.LINUX_ARM_KOOCLI_PACKAGE_NAME;
+        downloadInfo.url = context.LINUX_ARM_KOOCLI_URL;
+        downloadInfo.packageName = context.LINUX_ARM_KOOCLI_PACKAGE_NAME;
     }
     if (hostType.includes('x86_64')) {
-        downloadInfo.url = context_1.LINUX_AMD_KOOCLI_URL;
-        downloadInfo.packageName = context_1.LINUX_AMD_KOOCLI_PACKAGE_NAME;
+        downloadInfo.url = context.LINUX_AMD_KOOCLI_URL;
+        downloadInfo.packageName = context.LINUX_AMD_KOOCLI_PACKAGE_NAME;
+    }
+    return downloadInfo;
+}
+/**
+ * 根据MacOS操作系统获得cli下载地址和包名，目前MacOS支持MacOS AMD 64位 和 ARM 64位操作系统
+ * @param hostType
+ * @returns
+ */
+function getMacOSKooCLIDownloadInfo(hostType) {
+    const downloadInfo = {
+        url: '',
+        packageName: '',
+    };
+    if (hostType.includes('arm64')) {
+        downloadInfo.url = context.MACOS_ARM_KOOCLI_URL;
+        downloadInfo.packageName = context.MACOS_ARM_KOOCLI_PACKAGE_NAME;
+    }
+    if (hostType.includes('x86_64')) {
+        downloadInfo.url = context.MACOS_AMD_KOOCLI_URL;
+        downloadInfo.packageName = context.MACOS_AMD_KOOCLI_PACKAGE_NAME;
     }
     return downloadInfo;
 }
