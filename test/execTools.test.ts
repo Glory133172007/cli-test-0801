@@ -12,5 +12,5 @@ describe('check exec command', () => {
 });
 
 test('check get exec result', async () => {
-    expect(await tool.getExecResult('hcloud version')).toEqual(`当前KooCLI版本:3.3.1.1\n`);
+    expect(await tool.getExecResult('hcloud version')).toContain(`当前KooCLI版本`);
 });

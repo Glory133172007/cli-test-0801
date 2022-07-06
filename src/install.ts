@@ -108,7 +108,7 @@ async function installKooCLIOnLinuxAndMacOS(
     downloadUrl: string,
     mod: string
 ): Promise<void> {
-    await tools.execCommand(`sudo mkdir -p ${installPath}`);
+    fs.mkdirSync(installPath);
     await tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
 
     await tools.execCommand(`curl -LO ${downloadUrl}`);

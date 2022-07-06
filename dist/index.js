@@ -32,7 +32,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getInputs = exports.MACOS_AMD_KOOCLI_PACKAGE_NAME = exports.MACOS_AMD_KOOCLI_URL = exports.MACOS_ARM_KOOCLI_PACKAGE_NAME = exports.MACOS_ARM_KOOCLI_URL = exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = exports.LINUX_AMD_KOOCLI_URL = exports.LINUX_ARM_KOOCLI_PACKAGE_NAME = exports.LINUX_ARM_KOOCLI_URL = exports.LINUX_MACOS_KOOCLI_PATH = exports.WINDOWS_KOOCLI_URL = exports.WINDOWS_KOOCLI_PATH = exports.KOOCLI_MOD = void 0;
 const core = __importStar(__nccwpck_require__(186));
-exports.KOOCLI_MOD = '777';
+exports.KOOCLI_MOD = '775';
 // Windows的安装路径，下载地址
 exports.WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
 exports.WINDOWS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-windows-amd64.zip';
@@ -284,7 +284,7 @@ exports.installKooCLIOnLinux = installKooCLIOnLinux;
  */
 function installKooCLIOnLinuxAndMacOS(installPath, packageName, downloadUrl, mod) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield tools.execCommand(`sudo mkdir -p ${installPath}`);
+        fs.mkdirSync(installPath);
         yield tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
         yield tools.execCommand(`curl -LO ${downloadUrl}`);
         core.info(`extract KooCLI to ${installPath}`);

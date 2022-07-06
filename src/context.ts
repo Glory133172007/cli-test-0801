@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 
-export const KOOCLI_MOD = '777';
+export const KOOCLI_MOD = '775';
 
 // Windows的安装路径，下载地址
 export const WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
