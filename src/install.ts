@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as tc from '@actions/tool-cache';
-import * as fs from 'fs';
 import * as os from 'os';
 import * as tools from './execTools';
 import * as utils from './utils';
