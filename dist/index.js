@@ -30,9 +30,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getInputs = exports.MACOS_AMD_KOOCLI_PACKAGE_NAME = exports.MACOS_AMD_KOOCLI_URL = exports.MACOS_ARM_KOOCLI_PACKAGE_NAME = exports.MACOS_ARM_KOOCLI_URL = exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = exports.LINUX_AMD_KOOCLI_URL = exports.LINUX_ARM_KOOCLI_PACKAGE_NAME = exports.LINUX_ARM_KOOCLI_URL = exports.LINUX_MACOS_KOOCLI_PATH = exports.WINDOWS_KOOCLI_URL = exports.WINDOWS_KOOCLI_PATH = exports.KOOCLI_MOD = void 0;
+exports.getInputs = exports.MACOS_AMD_KOOCLI_PACKAGE_NAME = exports.MACOS_AMD_KOOCLI_URL = exports.MACOS_ARM_KOOCLI_PACKAGE_NAME = exports.MACOS_ARM_KOOCLI_URL = exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = exports.LINUX_AMD_KOOCLI_URL = exports.LINUX_ARM_KOOCLI_PACKAGE_NAME = exports.LINUX_ARM_KOOCLI_URL = exports.LINUX_MACOS_KOOCLI_PATH = exports.WINDOWS_KOOCLI_URL = exports.WINDOWS_KOOCLI_PATH = void 0;
 const core = __importStar(__nccwpck_require__(186));
-exports.KOOCLI_MOD = '775';
 // Windows的安装路径，下载地址
 exports.WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
 exports.WINDOWS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-windows-amd64.zip';
@@ -186,7 +185,6 @@ exports.updateKooCLI = exports.configureKooCLI = exports.installCLLIOnWindows = 
 const core = __importStar(__nccwpck_require__(186));
 const io = __importStar(__nccwpck_require__(436));
 const tc = __importStar(__nccwpck_require__(784));
-const fs = __importStar(__nccwpck_require__(147));
 const os = __importStar(__nccwpck_require__(37));
 const tools = __importStar(__nccwpck_require__(778));
 const utils = __importStar(__nccwpck_require__(918));
@@ -254,7 +252,7 @@ function installKooCLIOnMacos() {
             core.info(`KooCLI can be run on MacOS AMD64 or MacOS Arm64, your system is ${hostType}.`);
             return;
         }
-        yield installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url, context.KOOCLI_MOD);
+        yield installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url);
     });
 }
 exports.installKooCLIOnMacos = installKooCLIOnMacos;
@@ -265,13 +263,13 @@ exports.installKooCLIOnMacos = installKooCLIOnMacos;
 function installKooCLIOnLinux() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is Linux.');
-        const hostType = yield tools.getExecResult('echo $HOSTTYPE');
+        const hostType = yield tools.getExecResult(`uname -a`);
         const downloadInfo = getLinuxKooCLIDownloadInfo(hostType);
         if (utils.checkParameterIsNull(downloadInfo.url) || utils.checkParameterIsNull(downloadInfo.packageName)) {
             core.info(`KooCLI can be run on Linux AMD64 or Linux Arm64, your system is ${hostType}.`);
             return;
         }
-        yield installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url, context.KOOCLI_MOD);
+        yield installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url);
     });
 }
 exports.installKooCLIOnLinux = installKooCLIOnLinux;
@@ -282,14 +280,13 @@ exports.installKooCLIOnLinux = installKooCLIOnLinux;
  * @param downloadUrl
  * @param mod
  */
-function installKooCLIOnLinuxAndMacOS(installPath, packageName, downloadUrl, mod) {
+function installKooCLIOnLinuxAndMacOS(installPath, packageName, downloadUrl) {
     return __awaiter(this, void 0, void 0, function* () {
-        fs.mkdirSync(installPath);
-        yield tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
+        yield tools.execCommand(`sudo mkdir -p ${installPath}`);
         yield tools.execCommand(`curl -LO ${downloadUrl}`);
-        core.info(`extract KooCLI to ${installPath}`);
-        yield tools.execCommand(`tar -zxvf ${packageName} -C ${installPath}`);
+        yield tools.execCommand(`sudo tar -zxvf ${packageName} -C ${installPath}`);
         core.addPath(installPath);
+        yield tools.execCommand(`sudo chmod a+x ${installPath}/hcloud`);
     });
 }
 /**
@@ -298,7 +295,6 @@ function installKooCLIOnLinuxAndMacOS(installPath, packageName, downloadUrl, mod
 function installCLLIOnWindows() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('current system is Windows.');
-        fs.mkdirSync(context.WINDOWS_KOOCLI_PATH);
         const cliPath = yield tc.downloadTool(context.WINDOWS_KOOCLI_URL, `${context.WINDOWS_KOOCLI_PATH}/hcloud.zip`);
         const cliExtractedFolder = yield tc.extractZip(cliPath, context.WINDOWS_KOOCLI_PATH);
         core.addPath(cliExtractedFolder);

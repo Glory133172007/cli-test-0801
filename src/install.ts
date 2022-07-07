@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as tc from '@actions/tool-cache';
-import * as fs from 'fs';
 import * as os from 'os';
 import * as tools from './execTools';
 import * as utils from './utils';
@@ -65,12 +64,7 @@ export async function installKooCLIOnMacos(): Promise<void> {
         return;
     }
 
-    await installKooCLIOnLinuxAndMacOS(
-        context.LINUX_MACOS_KOOCLI_PATH,
-        downloadInfo.packageName,
-        downloadInfo.url,
-        context.KOOCLI_MOD
-    );
+    await installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url);
 }
 
 /**
@@ -80,19 +74,14 @@ export async function installKooCLIOnMacos(): Promise<void> {
 export async function installKooCLIOnLinux(): Promise<void> {
     core.info('current system is Linux.');
 
-    const hostType = await tools.getExecResult('echo $HOSTTYPE');
+    const hostType = await tools.getExecResult(`uname -a`);
     const downloadInfo = getLinuxKooCLIDownloadInfo(hostType);
     if (utils.checkParameterIsNull(downloadInfo.url) || utils.checkParameterIsNull(downloadInfo.packageName)) {
         core.info(`KooCLI can be run on Linux AMD64 or Linux Arm64, your system is ${hostType}.`);
         return;
     }
 
-    await installKooCLIOnLinuxAndMacOS(
-        context.LINUX_MACOS_KOOCLI_PATH,
-        downloadInfo.packageName,
-        downloadInfo.url,
-        context.KOOCLI_MOD
-    );
+    await installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url);
 }
 
 /**
@@ -105,17 +94,13 @@ export async function installKooCLIOnLinux(): Promise<void> {
 async function installKooCLIOnLinuxAndMacOS(
     installPath: string,
     packageName: string,
-    downloadUrl: string,
-    mod: string
+    downloadUrl: string
 ): Promise<void> {
-    fs.mkdirSync(installPath);
-    await tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
-
+    await tools.execCommand(`sudo mkdir -p ${installPath}`);
     await tools.execCommand(`curl -LO ${downloadUrl}`);
-
-    core.info(`extract KooCLI to ${installPath}`);
-    await tools.execCommand(`tar -zxvf ${packageName} -C ${installPath}`);
+    await tools.execCommand(`sudo tar -zxvf ${packageName} -C ${installPath}`);
     core.addPath(installPath);
+    await tools.execCommand(`sudo chmod a+x ${installPath}/hcloud`);
 }
 
 /**
@@ -124,7 +109,6 @@ async function installKooCLIOnLinuxAndMacOS(
 export async function installCLLIOnWindows(): Promise<void> {
     core.info('current system is Windows.');
 
-    fs.mkdirSync(context.WINDOWS_KOOCLI_PATH);
     const cliPath = await tc.downloadTool(context.WINDOWS_KOOCLI_URL, `${context.WINDOWS_KOOCLI_PATH}/hcloud.zip`);
     const cliExtractedFolder = await tc.extractZip(cliPath, context.WINDOWS_KOOCLI_PATH);
     core.addPath(cliExtractedFolder);
