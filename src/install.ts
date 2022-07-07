@@ -64,12 +64,7 @@ export async function installKooCLIOnMacos(): Promise<void> {
         return;
     }
 
-    await installKooCLIOnLinuxAndMacOS(
-        context.LINUX_MACOS_KOOCLI_PATH,
-        downloadInfo.packageName,
-        downloadInfo.url,
-        context.KOOCLI_MOD
-    );
+    await installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url);
 }
 
 /**
@@ -86,12 +81,7 @@ export async function installKooCLIOnLinux(): Promise<void> {
         return;
     }
 
-    await installKooCLIOnLinuxAndMacOS(
-        context.LINUX_MACOS_KOOCLI_PATH,
-        downloadInfo.packageName,
-        downloadInfo.url,
-        context.KOOCLI_MOD
-    );
+    await installKooCLIOnLinuxAndMacOS(context.LINUX_MACOS_KOOCLI_PATH, downloadInfo.packageName, downloadInfo.url);
 }
 
 /**
@@ -104,15 +94,10 @@ export async function installKooCLIOnLinux(): Promise<void> {
 async function installKooCLIOnLinuxAndMacOS(
     installPath: string,
     packageName: string,
-    downloadUrl: string,
-    mod: string
+    downloadUrl: string
 ): Promise<void> {
     await tools.execCommand(`sudo mkdir -p ${installPath}`);
-    await tools.execCommand(`sudo chmod -R ${mod} ${installPath}`);
-
     await tools.execCommand(`curl -LO ${downloadUrl}`);
-
-    core.info(`extract KooCLI to ${installPath}`);
     await tools.execCommand(`sudo tar -zxvf ${packageName} -C ${installPath}`);
     core.addPath(installPath);
     await tools.execCommand(`sudo chmod a+x ${installPath}/hcloud`);
