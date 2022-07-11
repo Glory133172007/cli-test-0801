@@ -2,7 +2,7 @@
     "name": "Huawei-Cloud-cli-action",
     "version": "1.0.1",
     "private": true,
-    "description": "action to set up KooCLI, add it to the PATH, and set default configuration.",
+    "description": "action to setup KooCLI, add it to the PATH, and set default configuration.",
     "main": "lib/main.js",
     "scripts": {
         "build": "tsc",
