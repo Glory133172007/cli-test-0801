@@ -34,7 +34,7 @@
 1、查询弹性云服务器*华北-北京四*API版本信息列表（使用默认region）
 ```yaml
 steps:
-  - name: Install KooCLI and List Versions of ECS
+  - name: Set up KooCLI and List Versions of ECS
     uses: huaweicloud/huaweicloud-cli-action@v1.0.2
     with:
       commandList: 'hcloud ECS NovaListVersions'
@@ -42,7 +42,7 @@ steps:
 2、指定参数，查询弹性云服务器指定API版本信息
 ```yaml
 steps:
-  - name: Install KooCLI
+  - name: Set up KooCLI
     uses: huaweicloud/huaweicloud-cli-action@v1.0.2
 
   - name: Show Specific Version Info of ECS by KooCLI
