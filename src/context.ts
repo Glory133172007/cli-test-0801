@@ -36,7 +36,7 @@ export function getInputs(): Inputs {
     return {
         accessKey: cred.getCredential('access_key', true),
         secretKey: cred.getCredential('secret_key', true),
-        region: cred.getCredential('region', true),
+        region: cred.getCredential('region', false),
         commandList: core.getMultilineInput('command_list', { required: false }),
     };
 }
