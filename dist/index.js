@@ -32,6 +32,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getInputs = exports.MACOS_AMD_KOOCLI_PACKAGE_NAME = exports.MACOS_AMD_KOOCLI_URL = exports.MACOS_ARM_KOOCLI_PACKAGE_NAME = exports.MACOS_ARM_KOOCLI_URL = exports.LINUX_AMD_KOOCLI_PACKAGE_NAME = exports.LINUX_AMD_KOOCLI_URL = exports.LINUX_ARM_KOOCLI_PACKAGE_NAME = exports.LINUX_ARM_KOOCLI_URL = exports.LINUX_MACOS_KOOCLI_PATH = exports.WINDOWS_KOOCLI_URL = exports.WINDOWS_KOOCLI_PATH = void 0;
 const core = __importStar(__nccwpck_require__(186));
+const cred = __importStar(__nccwpck_require__(166));
 // Windows的安装路径，下载地址
 exports.WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
 exports.WINDOWS_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/huaweicloud-cli-windows-amd64.zip';
@@ -49,14 +50,65 @@ exports.MACOS_AMD_KOOCLI_URL = 'https://hwcloudcli.obs.cn-north-1.myhuaweicloud.
 exports.MACOS_AMD_KOOCLI_PACKAGE_NAME = 'huaweicloud-cli-mac-amd64.tar.gz';
 function getInputs() {
     return {
-        accessKey: core.getInput('access_key', { required: true }),
-        secretKey: core.getInput('secret_key', { required: true }),
-        region: core.getInput('region', { required: false }),
+        accessKey: cred.getCredential('access_key', true),
+        secretKey: cred.getCredential('secret_key', true),
+        region: cred.getCredential('region', true),
         commandList: core.getMultilineInput('command_list', { required: false }),
     };
 }
 exports.getInputs = getInputs;
 //# sourceMappingURL=context.js.map
+
+/***/ }),
+
+/***/ 166:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getCredential = void 0;
+const core = __importStar(__nccwpck_require__(186));
+const HUAWEI_ClOUD_CREDENTIALS_ENVIRONMENT_VARIABLE_MAP = new Map([
+    ['access_key', 'HUAWEI_CLOUD_ACCESS_KEY_ID'],
+    ['secret_key', 'HUAWEI_CLOUD_SECRET_ACCESS_KEY'],
+    ['region', 'HUAWEI_CLOUD_REGION'],
+    ['project_id', 'HUAWEI_CLOUD_PROJECT_ID'],
+]);
+function getCredential(param, isRequired) {
+    const environmentVariable = HUAWEI_ClOUD_CREDENTIALS_ENVIRONMENT_VARIABLE_MAP.get(param) || '';
+    const credFromEnv = process.env[environmentVariable];
+    const cred = credFromEnv !== null && credFromEnv !== void 0 ? credFromEnv : core.getInput(param, { required: false });
+    if (isRequired && !cred) {
+        core.setFailed(`The Huawei Cloud credential input ${param} is not correct. Please switch to using huaweicloud/auth-action which supports authenticating to Huawei Cloud.`);
+    }
+    return cred;
+}
+exports.getCredential = getCredential;
+//# sourceMappingURL=credential.js.map
 
 /***/ }),
 
@@ -3596,7 +3648,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports._readLinuxVersionFile = exports._getOsVersion = exports._findMatch = void 0;
-const semver = __importStar(__nccwpck_require__(562));
+const semver = __importStar(__nccwpck_require__(911));
 const core_1 = __nccwpck_require__(186);
 // needs to be require for core node modules to be mocked
 /* eslint @typescript-eslint/no-require-imports: 0 */
@@ -3831,7 +3883,7 @@ const mm = __importStar(__nccwpck_require__(473));
 const os = __importStar(__nccwpck_require__(37));
 const path = __importStar(__nccwpck_require__(17));
 const httpm = __importStar(__nccwpck_require__(255));
-const semver = __importStar(__nccwpck_require__(562));
+const semver = __importStar(__nccwpck_require__(911));
 const stream = __importStar(__nccwpck_require__(781));
 const util = __importStar(__nccwpck_require__(837));
 const assert_1 = __nccwpck_require__(491);
@@ -4458,7 +4510,7 @@ function _unique(values) {
 
 /***/ }),
 
-/***/ 562:
+/***/ 911:
 /***/ ((module, exports) => {
 
 exports = module.exports = SemVer

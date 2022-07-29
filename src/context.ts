@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import * as cred from './credential';
 
 // Windows的安装路径，下载地址
 export const WINDOWS_KOOCLI_PATH = 'C:/windows/hcloud';
@@ -33,9 +34,9 @@ export interface Inputs {
 
 export function getInputs(): Inputs {
     return {
-        accessKey: core.getInput('access_key', { required: true }),
-        secretKey: core.getInput('secret_key', { required: true }),
-        region: core.getInput('region', { required: false }),
+        accessKey: cred.getCredential('access_key', true),
+        secretKey: cred.getCredential('secret_key', true),
+        region: cred.getCredential('region', true),
         commandList: core.getMultilineInput('command_list', { required: false }),
     };
 }
