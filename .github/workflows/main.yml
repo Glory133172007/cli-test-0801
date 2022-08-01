@@ -19,8 +19,8 @@ jobs:
 
       - name: Install KooCLI and List Versions Of ECS
         uses: ./
-        with:
-          command_list: 'hcloud ECS NovaListVersions'
           
       - name: echo KooCLI
-        run: hcloud version
+        run: |
+          hcloud version
+          hcloud ECS NovaListVersions
