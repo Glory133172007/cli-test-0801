@@ -12,7 +12,7 @@ jobs:
         with: 
           access_key_id: ${{ secrets.ACCESSKEY }} 
           secret_access_key: ${{ secrets.SECRETACCESSKEY }}
-          region: '<region>'
+          region: cn-north-4
 
       - name: Install KooCLI and List Versions Of ECS
         uses: ./
