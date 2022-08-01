@@ -5,7 +5,7 @@ on:
         master-dev
 jobs:
   List-Versions:
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Authenticate to Huawei Cloud
         uses: huaweicloud/auth-action@v1.0.0
