@@ -18,7 +18,7 @@ jobs:
           region: cn-north-4
 
       - name: Install KooCLI and List Versions Of ECS
-        uses: ./
+        uses: huaweicloud/huaweicloud-cli-action@v1.0.2
           
       - name: echo KooCLI
         run: |
