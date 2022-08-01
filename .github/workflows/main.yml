@@ -1,0 +1,23 @@
+name: List Versions of ECS With Default Region By KooCLI
+on:
+  push:
+    branches:
+        master-dev
+jobs:
+  List-Versions:
+    runs-on: linux-latest
+    steps:
+      - name: Authenticate to Huawei Cloud
+        uses: huaweicloud/auth-action@v1.0.0
+        with: 
+          access_key_id: ${{ secrets.ACCESSKEY }} 
+          secret_access_key: ${{ secrets.SECRETACCESSKEY }}
+          region: '<region>'
+
+      - name: Install KooCLI and List Versions Of ECS
+        uses: ./
+        with:
+          command_list: 'hcloud ECS NovaListVersions'
+          
+      - name: echo KooCLI
+        run: hcloud version
