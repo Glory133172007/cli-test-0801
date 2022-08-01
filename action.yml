@@ -7,10 +7,10 @@ author: 'lixinyu39'
 inputs:
   access_key:
     description: 'Access key id'
-    required: true
+    required: false
   secret_key:
     description: 'Secret access key'
-    required: true
+    required: false
   region:
     description: 'Region'
     required: false

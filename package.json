@@ -1,5 +1,5 @@
 {
-    "name": "Huawei-Cloud-cli-action",
+    "name": "huawei-cloud-cli-action",
     "version": "1.0.1",
     "private": true,
     "description": "action to setup KooCLI, add it to the PATH, and set default configuration.",
@@ -15,17 +15,11 @@
         "test": "jest --collectCoverage",
         "all": "npm run lint && npm run format && npm run build && npm run package"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/huaweicloud/huaweicloud-cli-action.git"
-    },
     "keywords": [
         "actions",
         "KooCLI",
         "cli"
     ],
-    "author": "lixinyu39",
-    "license": "MIT",
     "dependencies": {
         "@actions/core": "^1.8.2",
         "@actions/exec": "^1.1.1",
